@@ -12,22 +12,22 @@
 
 #include "pipex.h"
 
-void redirect_file(char *file_name, int pipe_end, int open_flags)
+void	redirect_file(char *file_name, int pipe_end, int open_flags)
 {
-	int file;
+	int	file;
 
 	check_err(file_name, file = open(file_name, open_flags, 0777));
 	check_err("dup2", dup2(file, pipe_end));
 	check_err("close", close(file));
 }
 
-int main(int argc, char**argv, char**envp)
+int	main(int argc, char**argv, char**envp)
 {	
-	int pipes[2][2];
-	char **cmd;
-	char *path_name;
-	int i;
-	
+	int		pipes[2][2];
+	char	**cmd;
+	char	*path_name;
+	int		i;
+
 	// if (argc < 4)
 	// 	return (0);
 	check_err("pipe", pipe(pipes[0]));
@@ -41,9 +41,10 @@ int main(int argc, char**argv, char**envp)
 		check_err("pipe", pipe(pipes[!(i & 1)]));
 		if (argv[i + 2] == 0)
 			redirect_file(argv[i + 1], pipes[!(i & 1)][1], O_WRONLY | O_TRUNC | O_CREAT);
-		exec_cmd(pipes[i & 1], pipes[!(i & 1)], path_name, cmd, envp);	// read from p1 and write to p2 (Parent 1>==p1==>0 Child 1>==p2==>0 Parent)
+		exec_cmd(pipes[i & 1], pipes[!(i & 1)], path_name, cmd, envp);
 		free_strs(cmd, path_name, 0);
 	}
 	check_err("close", close(pipes[i & 1][0]));
 	return (0);
 }
+	// read from p1 and write to p2 (Parent 1>==p1==>0 Child 1>==p2==>0 Parent)

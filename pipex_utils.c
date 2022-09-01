@@ -13,10 +13,10 @@
 #include "pipex.h"
 
 // Finds PATH environment variable and returns a list of each colon-separated directory in an array of strings
-char **parse_path(char **envp)
+char	**parse_path(char **envp)
 {
-	char path_var[5];
-	int i;
+	char	path_var[5];
+	int		i;
 
 	i = -1;
 	while (envp[++i])
@@ -28,7 +28,7 @@ char **parse_path(char **envp)
 	return (0);
 }
 
-void free_strs(char **args, char *str, int index)
+void	free_strs(char **args, char *str, int index)
 {
 	while (args[index])
 		free(args[index++]);
@@ -36,7 +36,7 @@ void free_strs(char **args, char *str, int index)
 	free(str);
 }
 
-int check_err(char *func_name, int ret_value)
+int		check_err(char *func_name, int ret_value)
 {
 	if (ret_value == -1)
 	{
@@ -47,12 +47,12 @@ int check_err(char *func_name, int ret_value)
 }
 
 // Checks if the cmd file exists in one of the PATH directories and returns the path, NULL if file does not exist
-char *get_pathname(char *cmd_name, char **envp)
+char	*get_pathname(char *cmd_name, char **envp)
 {
-	char *path_name;
-	char *file_name;
-	char **paths;
-	int i;
+	char	*path_name;
+	char	*file_name;
+	char	**paths;
+	int		i;
 
 	paths = parse_path(envp);
 	file_name = ft_strjoin("/", cmd_name);
@@ -73,9 +73,9 @@ char *get_pathname(char *cmd_name, char **envp)
 }
 
 // read from p1, execute command and write its output to p2
-void exec_cmd(int p1[], int p2[], char *file, char **cmd, char **env)
+void	exec_cmd(int p1[], int p2[], char *file, char **cmd, char **env)
 {
-	int status;
+	int	status;
 
 	if (check_err("fork", fork()) == 0)
 	{

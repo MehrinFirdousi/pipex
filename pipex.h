@@ -13,20 +13,23 @@
 #ifndef PIPEX_H
 # define PIPEX_H
 
-#include <stdio.h>
-#ifdef _WIN32 /* remove WIN macros for submission */
-# include <io.h>
-# define STDIN_FILENO 0
-# define STDOUT_FILENO 1
-# define F_OK 0
-#else
-# include <unistd.h>
-# include <sys/wait.h>
-#endif
-#include <fcntl.h>
-#include <stdlib.h>
-#include  <errno.h>
-#include "libft/libft.h"
+# ifdef _WIN32 /* remove WIN macros for submission */
+#  include <io.h>
+#  define STDIN_FILENO 0
+#  define STDOUT_FILENO 1
+#  define F_OK 0
+
+# else
+#  include <unistd.h>
+#  include <sys/wait.h>
+
+# endif
+
+# include <stdio.h>
+# include <fcntl.h>
+# include <stdlib.h>
+# include  <errno.h>
+# include "libft/libft.h"
 
 char	**parse_path(char **envp);
 char	*get_pathname(char *cmd_name, char **envp);
