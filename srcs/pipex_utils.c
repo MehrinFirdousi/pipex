@@ -73,21 +73,26 @@ char	*get_pathname(char *cmd_name, char **envp)
 }
 
 // read from p1, execute command and write its output to p2
-void	exec_cmd(int p1[], int p2[], char *file, char **cmd, char **env)
+void	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp)
 {
-	int	status;
+	int		status;
+	char	**cmd;
+	char	*path_name;
 
+	cmd = ft_split(cmd_str, ' ');
+	path_name = get_pathname(cmd[0], envp);	
 	if (check_err("fork", fork()) == 0)
 	{
-		check_err("dup2", dup2(p1[0], STDIN_FILENO));
-		check_err("close", close(p1[0]));
-		check_err("dup2", dup2(p2[1], STDOUT_FILENO));
-		check_err("close", close(p2[1]));
-		check_err("execve", execve(file, cmd, env));
+		check_err("dup2-", dup2(p1[0], STDIN_FILENO));
+		check_err("close-", close(p1[0]));
+		check_err("dup2--", dup2(p2[1], STDOUT_FILENO));
+		check_err("close--", close(p2[1]));
+		check_err("execve", execve(path_name, cmd, envp));
 	}
 	check_err("wait", wait(&status));
+	free_strs(cmd, path_name, 0);
 	if (!WIFEXITED(status)) // maybe remove
 		exit(EXIT_FAILURE);
-	check_err("close", close(p1[0])); // child done reading
-	check_err("close", close(p2[1])); // child done writing, ready for next proc to read
+	check_err("close1", close(p1[0]));
+	check_err("close2", close(p2[1]));
 }

@@ -29,13 +29,13 @@
 # include <fcntl.h>
 # include <stdlib.h>
 # include  <errno.h>
-# include "libft/libft.h"
+# include "libft.h"
 
 char	**parse_path(char **envp);
 char	*get_pathname(char *cmd_name, char **envp);
 void	redirect_file(char *file_name, int pipe_end, int open_flags);
 void	free_strs(char **args, char *str, int index);
-void	exec_cmd(int p1[], int p2[], char *file, char **cmd, char **env);
+void	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp);
 int		check_err(char *func_name, int ret_value);
 
 #endif
