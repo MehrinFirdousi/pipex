@@ -21,12 +21,21 @@ void	redirect_file(char *file_name, int pipe_end, int open_flags)
 	check_err("close", close(file));
 }
 
+void	exit_msg(char *heading, char *error_msg, int error_code)
+{
+	ft_printf("%s: %s\n", heading, error_msg);
+	exit(error_code);
+}
+
 int	main(int argc, char**argv, char**envp)
 {	
 	int		pipes[2][2];
 	int		open_flags;
+	int		status;
 	int		i;
 
+	if (argc != 5)
+		exit_msg("pipex", "Incorrect number of arguments", 2);
 	check_err("pipe", pipe(pipes[0]));
 	redirect_file(argv[1], pipes[0][0], O_RDONLY);
 	check_err("close", close(pipes[0][1]));
@@ -40,5 +49,10 @@ int	main(int argc, char**argv, char**envp)
 		exec_cmd(pipes[i & 1], pipes[!(i & 1)], argv[i], envp);
 	}
 	check_err("close", close(pipes[i & 1][0]));
+	check_err("wait", wait(&status));
+	if (WIFEXITED(status))
+		exit(WEXITSTATUS(status));
 	return (0);
 }
+
+// print_err("Incorrect number of arguments. Usage: ./pipex infile cmd1 cmd2 outfile", 2);

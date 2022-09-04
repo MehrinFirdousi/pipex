@@ -36,7 +36,7 @@ void	free_strs(char **args, char *str, int index)
 	free(str);
 }
 
-int		check_err(char *func_name, int ret_value)
+int	check_err(char *func_name, int ret_value)
 {
 	if (ret_value == -1)
 	{
@@ -54,33 +54,34 @@ char	*get_pathname(char *cmd_name, char **envp)
 	char	**paths;
 	int		i;
 
+	// if (!access(cmd_name, X_OK))
+	// 	return (cmd_name);
 	paths = parse_path(envp);
 	file_name = ft_strjoin("/", cmd_name);
 	i = -1;
 	while (paths[++i])
 	{
 		path_name = ft_strjoin(paths[i], file_name);
-		if (access(path_name, F_OK) != -1) // maybe also check if file is executable?
-			break;
+		if (access(path_name, X_OK) != -1) // file found
+			break ;
 		free(path_name);
 		free(paths[i]);
 		path_name = 0;
 	}
 	if (!path_name)
-		check_err(cmd_name, -1);
+		exit_msg(cmd_name, "command not found", 127);
 	free_strs(paths, file_name, i);
-	return (path_name); // file not found
+	return (path_name);
 }
 
 // read from p1, execute command and write its output to p2
 void	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp)
 {
-	int		status;
 	char	**cmd;
 	char	*path_name;
 
 	cmd = ft_split(cmd_str, ' ');
-	path_name = get_pathname(cmd[0], envp);	
+	path_name = get_pathname(cmd[0], envp);
 	if (check_err("fork", fork()) == 0)
 	{
 		check_err("dup2-", dup2(p1[0], STDIN_FILENO));
@@ -89,10 +90,7 @@ void	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp)
 		check_err("close--", close(p2[1]));
 		check_err("execve", execve(path_name, cmd, envp));
 	}
-	check_err("wait", wait(&status));
 	free_strs(cmd, path_name, 0);
-	if (!WIFEXITED(status)) // maybe remove
-		exit(EXIT_FAILURE);
 	check_err("close1", close(p1[0]));
 	check_err("close2", close(p2[1]));
 }

@@ -21,6 +21,8 @@
 # include <stdint.h>
 # include <stdlib.h>
 # include <stdio.h>
+# include "ft_printf.h"
+# include "get_next_line.h"
 
 int		ft_isalpha(int c);
 int		ft_isdigit(int c);
@@ -72,8 +74,5 @@ void	ft_lstdelone(t_list *lst, void (*del)(void*));
 void	ft_lstclear(t_list **lst, void (*del)(void*));
 void	ft_lstiter(t_list *lst, void (*f)(void *));
 t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
-
-// get_next_line 
-# include "get_next_line.h"
 
 #endif 
