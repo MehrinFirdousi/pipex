@@ -21,12 +21,6 @@ void	redirect_file(char *file_name, int pipe_end, int open_flags)
 	check_err("close", close(file));
 }
 
-void	exit_msg(char *heading, char *error_msg, int error_code)
-{
-	ft_printf("%s: %s\n", heading, error_msg);
-	exit(error_code);
-}
-
 int	main(int argc, char**argv, char**envp)
 {	
 	int		pipes[2][2];

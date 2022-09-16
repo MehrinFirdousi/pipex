@@ -18,6 +18,7 @@
 #  define STDIN_FILENO 0
 #  define STDOUT_FILENO 1
 #  define F_OK 0
+#  define X_OK 1
 
 # else
 #  include <unistd.h>

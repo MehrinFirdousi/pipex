@@ -46,6 +46,12 @@ int	check_err(char *func_name, int ret_value)
 	return (ret_value);
 }
 
+void	exit_msg(char *heading, char *error_msg, int error_code)
+{
+	ft_printf("%s: %s\n", heading, error_msg);
+	exit(error_code);
+}
+
 // Checks if the cmd file exists in one of the PATH directories and returns the path, NULL if file does not exist
 char	*get_pathname(char *cmd_name, char **envp)
 {
@@ -62,7 +68,7 @@ char	*get_pathname(char *cmd_name, char **envp)
 	while (paths[++i])
 	{
 		path_name = ft_strjoin(paths[i], file_name);
-		if (access(path_name, X_OK) != -1) // file found
+		if (access(path_name, F_OK) == 0) // file found
 			break ;
 		free(path_name);
 		free(paths[i]);
@@ -70,6 +76,8 @@ char	*get_pathname(char *cmd_name, char **envp)
 	}
 	if (!path_name)
 		exit_msg(cmd_name, "command not found", 127);
+	if (access(path_name, X_OK) == -1)
+		exit_msg(cmd_name, "permission denied", 126);
 	free_strs(paths, file_name, i);
 	return (path_name);
 }
@@ -81,13 +89,15 @@ void	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp)
 	char	*path_name;
 
 	cmd = ft_split(cmd_str, ' ');
+	if (!cmd || !cmd[0])
+		exit_msg(cmd_str, "command not found", 127);
 	path_name = get_pathname(cmd[0], envp);
 	if (check_err("fork", fork()) == 0)
 	{
-		check_err("dup2-", dup2(p1[0], STDIN_FILENO));
-		check_err("close-", close(p1[0]));
-		check_err("dup2--", dup2(p2[1], STDOUT_FILENO));
-		check_err("close--", close(p2[1]));
+		check_err("dup2", dup2(p1[0], STDIN_FILENO));
+		check_err("close", close(p1[0]));
+		check_err("dup2", dup2(p2[1], STDOUT_FILENO));
+		check_err("close", close(p2[1]));
 		check_err("execve", execve(path_name, cmd, envp));
 	}
 	free_strs(cmd, path_name, 0);
