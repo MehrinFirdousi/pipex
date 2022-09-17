@@ -32,12 +32,20 @@
 # include  <errno.h>
 # include "libft.h"
 
+typedef struct s_alloced
+{
+	int		pipes[2][2];
+	char	**cmd;
+	char	*path;
+}	t_alloced;
+
 char	**parse_path(char **envp);
 char	*get_pathname(char *cmd_name, char **envp);
 void	redirect_file(char *file_name, int pipe_end, int open_flags);
 void	free_strs(char **args, char *str, int index);
 void	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp);
 int		check_err(char *func_name, int ret_value);
+int		check_err2(char *func_name, int ret_value, t_alloced mem);
 void	exit_msg(char *heading, char *error_msg, int error_code);
 
 #endif
