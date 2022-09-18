@@ -75,9 +75,20 @@ int	check_err2(char *func_name, int ret_value, t_alloced mem)
 	return (ret_value);
 }
 
-void	exit_msg(char *heading, char *error_msg, int error_code)
+void	exit_msg(char *heading, char *error_msg, int error_code, t_alloced mem)
 {
+	int	i;
+
+	i = -1;
 	ft_printf("%s: %s\n", heading, error_msg);
+	while (++i < 2)
+	{
+		if (mem.pipes[i][i])
+			close(mem.pipes[i][i]);
+		if (mem.pipes[i][!i])
+			close(mem.pipes[i][!i]);
+	}
+	free_strs(mem.cmd, mem.path, 0);
 	exit(error_code);
 }
 
