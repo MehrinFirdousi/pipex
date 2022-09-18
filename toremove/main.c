@@ -1,19 +1,26 @@
 #include <stdio.h>
 #include "../include/libft.h"
 #include <bsd/string.h>
+#include <sys/wait.h>
 
 int main(int argc, char **argv)
 {
-	// char res1[4];
-	// res1[0] = '/';
-	// char *str1 = "";
-	// printf("real - %ld\n", strlcat(res1, str1, 4));
-	// printf("real - %s\n", res1);
-
-	char res[4];
-	res[0] = '/';
-	printf("mine - %ld\n", ft_strlcat(res, "", 4));
-	printf("mine - %s\n", res);
-
+	char *str = (char *)malloc(20);
+	ft_strlcpy(str, "hello", 20);
+	printf("1parent, %s\n", str);
+	if (fork() == 0)
+	{
+		printf("1child, %s\n", str);
+		ft_strlcpy(str, "byeee", 20);
+		printf("2child, %s\n", str);
+		free(str);
+	}
+	else
+	{
+		wait(NULL);
+		printf("2parent, %s\n", str);
+		free(str);
+	}
+	
 	return (0);
 }
