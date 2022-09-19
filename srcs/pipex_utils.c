@@ -68,10 +68,6 @@ int	check_err2(char *func_name, int ret_value, t_alloced mem)
 		free_strs(mem.cmd, mem.path, 0);
 		exit(EXIT_FAILURE);
 	}
-	// if (!mem.cmd)
-	// 	printf("cmd is null\n");
-	// if (!mem.path)
-	// 	printf("path is null\n");dd
 	return (ret_value);
 }
 
