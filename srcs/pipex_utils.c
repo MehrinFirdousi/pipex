@@ -50,26 +50,26 @@ int	check_err(char *func_name, int ret_value)
 	return (ret_value);
 }
 
-int	check_err2(char *func_name, int ret_value, t_alloced mem)
-{
-	int	i;
+// int	check_err2(char *func_name, int ret_value, t_alloced mem)
+// {
+// 	int	i;
 
-	i = -1;
-	if (ret_value == -1)
-	{
-		perror(func_name);
-		while (++i < 2)
-		{
-			if (mem.pipes[i][i])
-				close(mem.pipes[i][i]);
-			if (mem.pipes[i][!i])
-				close(mem.pipes[i][!i]);
-		}
-		free_strs(mem.cmd, mem.path, 0);
-		exit(EXIT_FAILURE);
-	}
-	return (ret_value);
-}
+// 	i = -1;
+// 	if (ret_value == -1)
+// 	{
+// 		perror(func_name);
+// 		while (++i < 2)
+// 		{
+// 			if (mem.pipes[i][i])
+// 				close(mem.pipes[i][i]);
+// 			if (mem.pipes[i][!i])
+// 				close(mem.pipes[i][!i]);
+// 		}
+// 		free_strs(mem.cmd, mem.path, 0);
+// 		exit(EXIT_FAILURE);
+// 	}
+// 	return (ret_value);
+// }
 
 void	exit_msg(char *heading, char *error_msg, int error_code, t_alloced mem)
 {

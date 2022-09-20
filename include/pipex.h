@@ -49,7 +49,7 @@ int		redirect_file(char *file_name, int pipe_end, int write);
 void	free_strs(char **args, char *str, int index);
 int		exec_cmd(int p1[], int p2[], char *cmd_str, char **envp);
 int		check_err(char *func_name, int ret_value);
-int		check_err2(char *func_name, int ret_value, t_alloced mem);
+// int		check_err2(char *func_name, int ret_value, t_alloced mem);
 void	exit_msg(char *heading, char *error_msg, int error_code, t_alloced mem);
 
 #endif

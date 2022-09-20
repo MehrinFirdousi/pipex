@@ -44,18 +44,13 @@ t_alloced	set_alloc(int p1[], int p2[], char **cmd, char *path)
 	return (mem);
 }
 
-int	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp)
+t_alloced	check_cmd(int p1[], int p2[], char *cmd_str, char **envp)
 {
 	char		**cmd;
 	char		*path_name;
 	t_alloced	mem_to_free;
-	int			pid;
 
-	pid = check_err("fork", fork());
-	if (pid == 0)
-	{	
-		close(p2[0]);
-		if (!cmd_str || !cmd_str[0])
+	if (!cmd_str || !cmd_str[0])
 			exit_msg("pipex", EMPTY_STRING_ERR, 2, set_alloc(p1, p2, 0, 0));
 		cmd = ft_split(cmd_str, ' ');
 		if (!cmd || !cmd[0])
@@ -68,15 +63,57 @@ int	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp)
 			exit_msg(cmd[0], CMD_ERR, 127, mem_to_free);
 		if (access(path_name, X_OK) != 0)
 			exit_msg(cmd[0], PERMISSION_ERR, 126, mem_to_free);
+	return (mem_to_free);
+}
+
+int	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp)
+{
+	int			pid;
+	t_alloced	c;
+
+	pid = check_err("fork", fork());
+	if (pid == 0)
+	{	
+		close(p2[0]);
+		c = check_cmd(p1, p2, cmd_str, envp);
 		dup2(p1[0], STDIN_FILENO);
 		close(p1[0]);
 		dup2(p2[1], STDOUT_FILENO);
 		close(p2[1]);
-		check_err("execve", execve(path_name, cmd, envp));
+		check_err("execve", execve(c.path, c.cmd, envp));
 	}
 	close(p1[0]);
 	close(p2[1]);
 	return (pid);
+}
+
+int	main(int argc, char**argv, char**envp)
+{
+	int	p[2][2];
+	int	status;
+	int	i;
+	int	pid[2];
+
+	if (argc != 5)
+	{
+		ft_printf("pipex: Incorrect number of arguments\n");
+		exit(2);
+	}
+	i = -1;
+	check_err("pipe", pipe(p[0]));
+	while (++i < 2)
+	{
+		check_err("pipe", pipe(p[!i]));
+		close(p[0][!i]);
+		if (redirect_file(argv[i * 3 + 1], p[0][i], i))
+			pid[i] = exec_cmd(p[i], p[!i], argv[i + 2], envp);
+	}
+	i = -1;
+	while (++i < 2)
+		waitpid(pid[i], &status, 0);
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	return (1);
 }
 
 // int	main(int argc, char**argv, char**envp)
@@ -113,20 +150,6 @@ int	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp)
 // 	return (0);
 // }
 
-int	main(int argc, char**argv, char**envp)
-{
-	int	p[2][2];
-	int	status;
-	int	i;
-	int	pid[2];
-
-	if (argc != 5)
-	{
-		ft_printf("pipex: Incorrect number of arguments\n");
-		exit(2);
-	}
-	i = -1;
-	check_err2("pipe", pipe(p[0]), set_alloc(p[0], p[1], 0, 0));
 	// check_err2("pipe", pipe(p[1]), set_alloc(p[0], p[1], 0, 0));
 	// close(p[0][1]);
 	// if (redirect_file(argv[1], p[0][0], O_RDONLY))
@@ -136,20 +159,3 @@ int	main(int argc, char**argv, char**envp)
 	// close(p[0][0]);
 	// if (redirect_file(argv[4], p[0][1], O_WRONLY | O_TRUNC | O_CREAT))
 	// 	pid[1] = exec_cmd(p[1], p[0], argv[3], envp);
-	
-	i = -1;
-	while (++i < 2) // runs for i values 0 and 1 only 
-	{
-		check_err2("pipe", pipe(p[!i]), set_alloc(p[0], p[1], 0, 0));
-		close(p[0][1]);
-		close(p[0][!i]);
-		if (redirect_file(argv[i * 3 + 1], p[0][i], i))
-			pid[i] = exec_cmd(p[i], p[!i], argv[i + 2], envp);
-	}
-	i = -1;
-	while (++i < 2)
-		waitpid(pid[i], &status, 0);
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
-	return (1);
-}
