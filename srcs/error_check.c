@@ -6,7 +6,7 @@
 /*   By: mfirdous <mfirdous@student.42abudhabi.a    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/09/21 13:10:06 by mfirdous          #+#    #+#             */
-/*   Updated: 2022/09/21 13:27:47 by mfirdous         ###   ########.fr       */
+/*   Updated: 2022/09/21 16:25:04 by mfirdous         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,22 +54,24 @@ t_alloced	*check_cmd(int p1[], int p2[], char *cmd_str, char **envp)
 {
 	char		**cmd;
 	char		*path_name;
-	t_alloced	*mem_to_free;
+	t_alloced	*cmd_info;
 
+	cmd_info = set_alloc(p1, p2, 0, 0);
 	if (!cmd_str || !cmd_str[0])
-		exit_msg("pipex", EMPTY_STRING_ERR, 2, set_alloc(p1, p2, 0, 0));
+		exit_msg("pipex", EMPTY_STRING_ERR, 2, cmd_info);
 	cmd = ft_split(cmd_str, ' ');
+	cmd_info->cmd = cmd;
 	if (!cmd || !cmd[0])
-		exit_msg(cmd_str, CMD_ERR, 127, set_alloc(p1, p2, 0, 0));
+		exit_msg(cmd_str, CMD_ERR, 127, cmd_info);
 	path_name = get_pathname(cmd[0], envp);
-	mem_to_free = set_alloc(p1, p2, cmd, path_name);
 	if (!path_name && access(cmd[0], F_OK) == 0)
 		path_name = ft_strdup(cmd[0]);
 	else if (!path_name)
-		exit_msg(cmd[0], CMD_ERR, 127, mem_to_free);
+		exit_msg(cmd[0], CMD_ERR, 127, cmd_info);
+	cmd_info->path = path_name;
 	if (access(path_name, X_OK) != 0)
-		exit_msg(cmd[0], PERMISSION_ERR, 126, mem_to_free);
-	return (mem_to_free);
+		exit_msg(cmd[0], PERMISSION_ERR, 126, cmd_info);
+	return (cmd_info);
 }
 
 int	check_err(char *func_name, int ret_value)
@@ -81,4 +83,3 @@ int	check_err(char *func_name, int ret_value)
 	}
 	return (ret_value);
 }
-

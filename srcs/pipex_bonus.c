@@ -84,7 +84,7 @@ int	wait_cmds(int *pids, int count)
 
 	i = -1;
 	while (++i < count)
-		waitpid(pids[i], &status, 0);
+		waitpid(pids[0], &status, 0);
 	free(pids);
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
@@ -99,10 +99,12 @@ int	main(int argc, char**argv, char**envp)
 	int	count;
 	int	i;
 
+	if (argc < 4)
+		exit_msg("pipex", WRONG_ARG_COUNT, 2, NULL);
 	check_err("pipe", pipe(pipes[0]));
 	open_flags = check_heredoc(argv, pipes[0], &i);
 	close(pipes[0][1]);
-	pids = (int *)malloc(sizeof(int) * argc);
+	pids = (int *)malloc(sizeof(int) * (argc - i - 2));
 	argv += i;
 	i = 0;
 	count = 0;
@@ -119,10 +121,6 @@ int	main(int argc, char**argv, char**envp)
 }
 
 /* TODO:
-	1. remove redirect_file and add the content inline 
-	2. error proof check_heredoc
-	3. make check_heredoc write to a temporary file instead of the pipe directly because pipe has a limited buffer size
-!!! 4. check for leaks if the program returns unexpectedly through an error 
 	5. remove free_strs
 
 	clean up bonus main
