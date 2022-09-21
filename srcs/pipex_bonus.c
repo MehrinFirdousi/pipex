@@ -28,45 +28,10 @@ int	redirect_file(char *file_name, int pipe_end, int open_flags)
 	return (1);
 }
 
-t_alloced	set_alloc(int p1[], int p2[], char **cmd, char *path)
-{	
-	t_alloced	mem;
-
-	mem.pipes[0][0] = p1[0];
-	mem.pipes[0][1] = p1[1];
-	mem.pipes[1][0] = p2[0];
-	mem.pipes[1][1] = p2[1];
-	mem.cmd = cmd;
-	mem.path = path;
-	return (mem);
-}
-
-t_alloced	check_cmd(int p1[], int p2[], char *cmd_str, char **envp)
-{
-	char		**cmd;
-	char		*path_name;
-	t_alloced	mem_to_free;
-
-	if (!cmd_str || !cmd_str[0])
-			exit_msg("pipex", EMPTY_STRING_ERR, 2, set_alloc(p1, p2, 0, 0));
-		cmd = ft_split(cmd_str, ' ');
-		if (!cmd || !cmd[0])
-			exit_msg(cmd_str, CMD_ERR, 127, set_alloc(p1, p2, 0, 0));
-		path_name = get_pathname(cmd[0], envp);
-		mem_to_free = set_alloc(p1, p2, cmd, path_name);
-		if (!path_name && access(cmd[0], F_OK) == 0)
-			path_name = ft_strdup(cmd[0]);
-		else if (!path_name)
-			exit_msg(cmd[0], CMD_ERR, 127, mem_to_free);
-		if (access(path_name, X_OK) != 0)
-			exit_msg(cmd[0], PERMISSION_ERR, 126, mem_to_free);
-	return (mem_to_free);
-}
-
 int	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp)
 {
 	int			pid;
-	t_alloced	c;
+	t_alloced	*c;
 
 	pid = check_err("fork", fork());
 	if (pid == 0)
@@ -77,7 +42,7 @@ int	exec_cmd(int p1[], int p2[], char *cmd_str, char **envp)
 		close(p1[0]);
 		dup2(p2[1], STDOUT_FILENO);
 		close(p2[1]);
-		check_err("execve", execve(c.path, c.cmd, envp));
+		check_err("execve", execve(c->path, c->cmd, envp));
 	}
 	close(p1[0]);
 	close(p2[1]);
@@ -92,14 +57,16 @@ int	check_heredoc(char **argv, int pipe[], int *i)
 	if (ft_strncmp("here_doc", argv[1], 9) == 0)
 	{
 		d_len = ft_strlen(argv[2]);
-		check_err("write", write(STDOUT_FILENO, "> ", 2));
-		while ((line = get_next_line(STDIN_FILENO)))
+		write(STDOUT_FILENO, "> ", 2);
+		line = get_next_line(STDIN_FILENO);
+		while (line)
 		{
 			if (!ft_strncmp(line, argv[2], d_len) && !line[d_len + 1])
 				break ;
-			check_err("write", write(pipe[1], line, ft_strlen(line)));
-			check_err("write", write(STDOUT_FILENO, "> ", 2));
+			write(pipe[1], line, ft_strlen(line));
+			write(STDOUT_FILENO, "> ", 2);
 			free(line);
+			line = get_next_line(STDIN_FILENO);
 		}
 		*i = 2;
 		free(line);
@@ -110,27 +77,45 @@ int	check_heredoc(char **argv, int pipe[], int *i)
 	return (O_WRONLY | O_TRUNC | O_CREAT);
 }
 
+int	wait_cmds(int *pids, int count)
+{
+	int	i;
+	int	status;
+
+	i = -1;
+	while (++i < count)
+		waitpid(pids[i], &status, 0);
+	free(pids);
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	return (1);
+}
+
 int	main(int argc, char**argv, char**envp)
 {	
-	int		pipes[2][2];
-	int		open_flags;
-	int		i;
-	int		j;
+	int	pipes[2][2];
+	int	open_flags;
+	int	*pids;
+	int	count;
+	int	i;
 
 	check_err("pipe", pipe(pipes[0]));
 	open_flags = check_heredoc(argv, pipes[0], &i);
-	check_err("close", close(pipes[0][1]));
-	j = 0;
-	while (argv[++i + 1])
+	close(pipes[0][1]);
+	pids = (int *)malloc(sizeof(int) * argc);
+	argv += i;
+	i = 0;
+	count = 0;
+	while (*(++argv + 1))
 	{
-		check_err("pipe", pipe(pipes[!j]));
-		if (!argv[i + 2])
-			redirect_file(argv[argc - 1], pipes[!j][1], open_flags);
-		exec_cmd(pipes[j], pipes[!j], argv[i], envp);
-		j = !j;
+		check_err("pipe", pipe(pipes[!i]));
+		if (!argv[2])
+			redirect_file(argv[1], pipes[!i][1], open_flags);
+		pids[count++] = exec_cmd(pipes[i], pipes[!i], *argv, envp);
+		i = !i;
 	}
-	check_err("close", close(pipes[j][0]));
-	return (0);
+	close(pipes[i][0]);
+	return (wait_cmds(pids, count));
 }
 
 /* TODO:
@@ -139,12 +124,8 @@ int	main(int argc, char**argv, char**envp)
 	3. make check_heredoc write to a temporary file instead of the pipe directly because pipe has a limited buffer size
 !!! 4. check for leaks if the program returns unexpectedly through an error 
 	5. remove free_strs
-	6. remove gnl header file from srcs and ask around about making the functions static
-	7. return error codes that the real bash pipe returns 
 
-	move error check functions
 	clean up bonus main
-	test infile and outfile permissions (lag)
 	leaks, fds, trace children, track zombies
 	
 */

@@ -6,15 +6,15 @@
 #    By: mfirdous <mfirdous@student.42abudhabi.a    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/09/01 17:34:11 by mfirdous          #+#    #+#              #
-#    Updated: 2022/09/03 00:44:04 by mfirdous         ###   ########.fr        #
+#    Updated: 2022/09/21 14:07:47 by mfirdous         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 # maybe do gcc with libft 
 
-SRCS	=	srcs/pipex.c srcs/pipex_utils.c
+SRCS	=	srcs/pipex.c srcs/pipex_utils.c srcs/error_check.c
 
-B_SRCS	=	srcs/pipex_bonus.c srcs/pipex_utils.c 
+B_SRCS	=	srcs/pipex_bonus.c srcs/pipex_utils.c srcs/error_check.c
 
 OBJS	=	${SRCS:.c=.o}
 

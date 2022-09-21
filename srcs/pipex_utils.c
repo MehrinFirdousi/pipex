@@ -40,54 +40,6 @@ void	free_strs(char **args, char *str, int index)
 		free(str);
 }
 
-int	check_err(char *func_name, int ret_value)
-{
-	if (ret_value == -1)
-	{
-		perror(func_name);
-		exit(EXIT_FAILURE);
-	}
-	return (ret_value);
-}
-
-// int	check_err2(char *func_name, int ret_value, t_alloced mem)
-// {
-// 	int	i;
-
-// 	i = -1;
-// 	if (ret_value == -1)
-// 	{
-// 		perror(func_name);
-// 		while (++i < 2)
-// 		{
-// 			if (mem.pipes[i][i])
-// 				close(mem.pipes[i][i]);
-// 			if (mem.pipes[i][!i])
-// 				close(mem.pipes[i][!i]);
-// 		}
-// 		free_strs(mem.cmd, mem.path, 0);
-// 		exit(EXIT_FAILURE);
-// 	}
-// 	return (ret_value);
-// }
-
-void	exit_msg(char *heading, char *error_msg, int error_code, t_alloced mem)
-{
-	int	i;
-
-	i = -1;
-	ft_printf("%s: %s\n", heading, error_msg);
-	while (++i < 2)
-	{
-		if (mem.pipes[i][i])
-			close(mem.pipes[i][i]);
-		if (mem.pipes[i][!i])
-			close(mem.pipes[i][!i]);
-	}
-	free_strs(mem.cmd, mem.path, 0);
-	exit(error_code);
-}
-
 // Returns the command file path if found in PATH, NULL if file does not exist
 char	*get_pathname(char *cmd_name, char **envp)
 {
