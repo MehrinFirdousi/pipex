@@ -13,19 +13,8 @@
 #ifndef PIPEX_H
 # define PIPEX_H
 
-# ifdef _WIN32 /* remove WIN macros for submission */
-#  include <io.h>
-#  define STDIN_FILENO 0
-#  define STDOUT_FILENO 1
-#  define F_OK 0
-#  define X_OK 1
-
-# else
-#  include <unistd.h>
-#  include <sys/wait.h>
-
-# endif
-
+# include <unistd.h>
+# include <sys/wait.h>
 # include <stdio.h>
 # include <fcntl.h>
 # include <stdlib.h>

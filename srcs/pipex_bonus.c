@@ -119,11 +119,3 @@ int	main(int argc, char**argv, char**envp)
 	close(pipes[i][0]);
 	return (wait_cmds(pids, count));
 }
-
-/* TODO:
-	5. remove free_strs
-
-	clean up bonus main
-	leaks, fds, trace children, track zombies
-	
-*/
